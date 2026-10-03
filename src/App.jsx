@@ -36,6 +36,12 @@ export function App() {
     setTimeout(() => setUserNotification(''), 3000);
   };
 
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setUserNotification('You have been logged out.');
+    setTimeout(() => setUserNotification(''), 3000);
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Toast Alert */}
@@ -65,6 +71,7 @@ export function App() {
         onNavigate={navigateTo}
         onOpenAuth={() => setAuthModalOpen(true)}
         onOpenAbout={() => setAboutModalOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Screen Views */}

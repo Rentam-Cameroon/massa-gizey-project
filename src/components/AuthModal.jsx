@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { IconX } from './Icons';
 
@@ -25,7 +27,7 @@ export const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3 className="modal-title">
-            {tab === 'signin' ? 'Sign in to X Dictionary' : 'Create an Account'}
+            {tab === 'signin' ? 'Sign in to Massa Gizey Project' : 'Create an Account'}
           </h3>
           <button className="modal-close-btn" onClick={onClose} aria-label="Close">
             <IconX size={20} />
@@ -33,7 +35,6 @@ export const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
         </div>
 
         <div className="modal-body">
-          {/* Tab selector */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
             <button
               type="button"
@@ -64,7 +65,7 @@ export const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Amelia Vance"
+                  placeholder="e.g. Jean-Paul Massa"
                   className="search-input-base"
                   style={{ paddingLeft: '14px', height: '42px' }}
                 />
@@ -111,7 +112,7 @@ export const AuthModal = ({ isOpen, onClose, onLoginSuccess }) => {
             </button>
 
             <p style={{ fontSize: '13px', color: '#64748b', textAlign: 'center', marginTop: '4px' }}>
-              Sample prototype account mode. Enter any email to continue.
+              Sample account mode. Enter any email to continue.
             </p>
           </form>
         </div>

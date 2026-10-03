@@ -1,31 +1,28 @@
-import React from 'react';
+'use client';
 
-export const Breadcrumbs = ({ items = [], onNavigate }) => {
+import React from 'react';
+import Link from 'next/link';
+
+export const Breadcrumbs = ({ items = [] }) => {
   return (
     <div className="container">
       <nav className="breadcrumbs-bar" aria-label="Breadcrumb">
-        <button 
-          className="breadcrumbs-link" 
-          onClick={() => onNavigate('home')}
-        >
+        <Link href="/" className="breadcrumbs-link">
           Home
-        </button>
+        </Link>
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
             <React.Fragment key={index}>
               <span className="breadcrumbs-separator">/</span>
-              {isLast || !item.screen ? (
+              {isLast || !item.href ? (
                 <span className="breadcrumbs-current" aria-current="page">
                   {item.label}
                 </span>
               ) : (
-                <button
-                  className="breadcrumbs-link"
-                  onClick={() => onNavigate(item.screen, item.params)}
-                >
+                <Link href={item.href} className="breadcrumbs-link">
                   {item.label}
-                </button>
+                </Link>
               )}
             </React.Fragment>
           );
