@@ -1,25 +1,36 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { IconSearch, IconPlay } from '../../components/Icons';
-import { VIDEO_STORIES } from '../../data/storiesData';
 
 export default function StoriesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTopic, setActiveTopic] = useState('All stories');
+  const [stories, setStories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const featuredStory = VIDEO_STORIES[0];
+  useEffect(() => {
+    let ignore = false;
+    const q = new URLSearchParams();
+    if (searchQuery) q.set('search', searchQuery);
+    if (activeTopic && activeTopic !== 'All stories') q.set('topic', activeTopic);
+    setLoading(true);
+    fetch(`/api/stories?${q.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!ignore && data.success) setStories(data.stories || []);
+      })
+      .catch((err) => console.error('Stories fetch error:', err))
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+    return () => { ignore = true; };
+  }, [searchQuery, activeTopic]);
 
-  const filteredStories = VIDEO_STORIES.filter((item) => {
-    const matchesSearch = 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTopic = 
-      activeTopic === 'All stories' || item.topic === activeTopic;
-    return matchesSearch && matchesTopic;
-  });
+  const featuredStory = stories.find((s) => s.featured) || stories[0];
+  const filteredStories = stories;
 
   return (
     <div className="video-stories-screen">
@@ -99,6 +110,11 @@ export default function StoriesPage() {
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Featured story</h2>
           </div>
 
+          {!featuredStory ? (
+            <div style={{ padding: 32, background: '#f8fafc', borderRadius: 16, color: '#64748b' }}>
+              {loading ? 'Loading stories…' : 'No video stories have been published yet.'}
+            </div>
+          ) : (
           <Link 
             href={`/stories/${featuredStory.id}`}
             className="featured-story-banner"
@@ -106,7 +122,7 @@ export default function StoriesPage() {
             {/* Left image */}
             <div style={{ flex: '1.2', position: 'relative', minHeight: '260px', background: '#0f172a' }}>
               <img
-                src={featuredStory.heroImage}
+                src={featuredStory.heroImage || featuredStory.thumbnail || '/images/story_map.png'}
                 alt={featuredStory.title}
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
               />
@@ -171,6 +187,7 @@ export default function StoriesPage() {
               </div>
             </div>
           </Link>
+          )}
         </div>
 
         {/* Story directory */}
@@ -193,7 +210,7 @@ export default function StoriesPage() {
                 {/* Thumbnail */}
                 <div style={{ position: 'relative', height: '184px', background: '#e2e8f0', margin: '-24px -24px 20px -24px', width: 'calc(100% + 48px)' }}>
                   <img
-                    src={story.thumbnail}
+                    src={story.thumbnail || story.heroImage || '/images/story_map.png'}
                     alt={story.title}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />

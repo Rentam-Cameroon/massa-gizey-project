@@ -30,10 +30,11 @@ export async function POST(request, { params }) {
 
     return NextResponse.json({
       success: true,
+      pending: true,
       pronunciation_url: result.pronunciation_url,
       wordId: result.wordId,
       wordForm: result.wordForm,
-      message: 'Pronunciation saved and attached successfully!'
+      message: 'Pronunciation submitted for admin review. It will appear on the word after it is accepted.'
     });
   } catch (error) {
     console.error('Error saving pronunciation:', error);

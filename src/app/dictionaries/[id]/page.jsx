@@ -154,33 +154,9 @@ export default function DictionaryDetailPage({ params }) {
     }
   };
 
-  // Callback when user attaches pronunciation from modal
-  const handlePronunciationSaved = (savedWord, newUrl) => {
-    // Update local state words list
-    setWords((prev) =>
-      prev.map((w) =>
-        w.id === savedWord.id || w.wordForm === savedWord.wordForm
-          ? { ...w, pronunciation_url: newUrl }
-          : w
-      )
-    );
-    showToast(`✓ Pronunciation saved for "${savedWord.wordForm}"!`);
-
-    // Auto-play the new pronunciation
-    setTimeout(() => {
-      try {
-        const audio = new Audio(newUrl);
-        audioPlayerRef.current = audio;
-        setPlayingWordId(savedWord.id);
-        audio.onended = () => {
-          setPlayingWordId(null);
-          audioPlayerRef.current = null;
-        };
-        audio.play().catch(() => {});
-      } catch {
-        // ignore
-      }
-    }, 500);
+  // Callback when user submits pronunciation for admin review
+  const handlePronunciationSaved = (savedWord) => {
+    showToast(`Pronunciation for “${savedWord.wordForm}” is waiting for editor review.`);
   };
 
   // Voice recording inside "Suggest a Word" form (Requirement 4)

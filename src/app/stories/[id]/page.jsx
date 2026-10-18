@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, use, useEffect } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '../../../components/Breadcrumbs';
+import { VideoPlayer } from '../../../components/VideoPlayer';
 import { 
-  IconPlay, 
   IconThumbsUp, 
   IconShare, 
   IconBookmark, 
@@ -12,15 +12,14 @@ import {
   IconArrowLeft, 
   IconArrowRight 
 } from '../../../components/Icons';
-import { VIDEO_STORIES } from '../../../data/storiesData';
 
 export default function StoryDetailPage({ params }) {
   const resolvedParams = use(params);
   const storyId = resolvedParams.id || 'why-words-travel';
-  const story = VIDEO_STORIES.find((s) => s.id === storyId) || VIDEO_STORIES[0];
+  const [story, setStory] = useState(null);
+  const [loadError, setLoadError] = useState('');
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [likes, setLikes] = useState(story.likesCount);
+  const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -28,10 +27,30 @@ export default function StoryDetailPage({ params }) {
   const [reviewText, setReviewText] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-  const [comments, setComments] = useState(story.comments);
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [toastMessage, setToastMessage] = useState('');
   const [selectedTag, setSelectedTag] = useState(null);
+
+  useEffect(() => {
+    let ignore = false;
+    fetch(`/api/stories/${storyId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (ignore) return;
+        if (!data.success || !data.story) {
+          setLoadError(data.error || 'Story not found');
+          return;
+        }
+        setStory(data.story);
+        setLikes(data.story.likesCount || 0);
+        setComments(data.story.comments || []);
+      })
+      .catch((err) => {
+        if (!ignore) setLoadError(err.message);
+      });
+    return () => { ignore = true; };
+  }, [storyId]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -85,6 +104,19 @@ export default function StoryDetailPage({ params }) {
     showToast('Comment posted successfully!');
   };
 
+  if (!story) {
+    return (
+      <div className="story-detail-screen">
+        <Breadcrumbs items={[{ label: 'Video Stories', href: '/stories' }, { label: 'Story' }]} />
+        <div className="container" style={{ padding: '48px 24px', color: '#64748b' }}>
+          {loadError || 'Loading story…'}
+        </div>
+      </div>
+    );
+  }
+
+  const vocabulary = story.vocabulary || [];
+
   return (
     <div className="story-detail-screen">
       <Breadcrumbs 
@@ -121,60 +153,16 @@ export default function StoryDetailPage({ params }) {
             {story.fullDescription}
           </p>
           <div style={{ fontSize: '14px', color: '#64748b' }}>
-            Video story · 8 min
+            Video story · {story.duration || story.durationFormatted || 'Watch'}
+            {story.speaker ? ` · ${story.speaker}` : ''}
           </div>
         </div>
 
-        {/* Video Player Box */}
-        <div style={{ 
-          position: 'relative', 
-          borderRadius: '16px', 
-          overflow: 'hidden', 
-          background: '#0f172a',
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.15)',
-          marginBottom: '20px'
-        }}>
-          <img
-            src={story.mainVideoFrame}
-            alt={story.title}
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-          />
-
-          {/* Interactive Play Overlay */}
-          <div 
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: isPlaying ? 'rgba(0,0,0,0.1)' : 'transparent',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              setIsPlaying(!isPlaying);
-              showToast(isPlaying ? 'Video paused' : 'Video playing');
-            }}
-          >
-            {!isPlaying && (
-              <div 
-                style={{
-                  width: '64px',
-                  height: '64px',
-                  borderRadius: '50%',
-                  background: '#ffffff',
-                  color: '#1362dc',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                }}
-              >
-                <IconPlay size={26} fill="#1362dc" />
-              </div>
-            )}
-          </div>
-        </div>
+        <VideoPlayer
+          src={story.videoUrl}
+          poster={story.heroImage || story.thumbnail || story.mainVideoFrame}
+          title={story.title}
+        />
 
         {/* Action bar below video */}
         <div style={{ 
@@ -272,10 +260,10 @@ export default function StoryDetailPage({ params }) {
                   textAlign: 'right'
                 }}>
                   <div style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>
-                    4.6 <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748b' }}>/ 5</span>
+                    {(story.ratingAvg || 0).toFixed(1)} <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748b' }}>/ 5</span>
                   </div>
                   <div style={{ fontSize: '11px', color: '#64748b' }}>
-                    Sample average · 38 ratings
+                    {story.ratingCount || 0} ratings
                   </div>
                 </div>
               </div>
@@ -470,7 +458,7 @@ export default function StoryDetailPage({ params }) {
               </p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {story.vocabulary.map((v, i) => (
+                {vocabulary.map((v, i) => (
                   <button
                     key={i}
                     onClick={() => {

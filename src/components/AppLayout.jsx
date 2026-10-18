@@ -1,19 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { AuthModal } from './AuthModal';
 import { AboutModal } from './AboutModal';
 
 export function AppLayout({ children }) {
+  const pathname = usePathname();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
+  const isAdmin = pathname?.startsWith('/admin');
 
-  // Hydrate user from localStorage if present
   useEffect(() => {
+    if (isAdmin) return;
     try {
       const savedUser = localStorage.getItem('massa_current_user');
       if (savedUser) {
@@ -22,7 +25,11 @@ export function AppLayout({ children }) {
     } catch {
       // ignore
     }
-  }, []);
+  }, [isAdmin]);
+
+  if (isAdmin) {
+    return children;
+  }
 
   const handleLoginSuccess = (name) => {
     setCurrentUser(name);

@@ -265,10 +265,10 @@ export function PronunciationModal({
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>🎉</div>
               <h4 style={{ fontSize: '18px', fontWeight: 700, color: '#16a34a', marginBottom: '6px' }}>
-                Pronunciation Attached!
+                Sent for review
               </h4>
               <p style={{ fontSize: '14px', color: '#475569' }}>
-                The audio has been saved to the {dictionary === 'gizey' ? 'Gizey' : 'Massa'} database. You can now listen to it directly on the word card!
+                Thank you. An editor will listen to this recording and, if accepted, attach it to the {dictionary === 'gizey' ? 'Gizey' : 'Massa'} dictionary entry.
               </p>
             </div>
           ) : (

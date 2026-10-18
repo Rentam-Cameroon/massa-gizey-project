@@ -113,6 +113,34 @@ const tableDefinitions = {
   PRIMARY KEY (\`id\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
+  video_stories: `CREATE TABLE IF NOT EXISTS \`video_stories\` (
+  \`id\` varchar(64) NOT NULL,
+  \`slug\` varchar(255) DEFAULT NULL,
+  \`title\` varchar(255) NOT NULL,
+  \`category\` varchar(100) DEFAULT NULL,
+  \`topic\` varchar(100) DEFAULT NULL,
+  \`description\` text DEFAULT NULL,
+  \`full_description\` text DEFAULT NULL,
+  \`duration\` varchar(50) DEFAULT NULL,
+  \`duration_formatted\` varchar(50) DEFAULT NULL,
+  \`video_url\` varchar(1000) DEFAULT NULL,
+  \`thumbnail_url\` varchar(1000) DEFAULT NULL,
+  \`hero_image_url\` varchar(1000) DEFAULT NULL,
+  \`speaker\` varchar(255) DEFAULT NULL,
+  \`vocabulary_json\` text DEFAULT NULL,
+  \`featured\` tinyint(1) DEFAULT 0,
+  \`is_seed\` tinyint(1) DEFAULT 0,
+  \`views\` int(11) DEFAULT 0,
+  \`likes_count\` int(11) DEFAULT 0,
+  \`rating_avg\` decimal(3,2) DEFAULT 0,
+  \`rating_count\` int(11) DEFAULT 0,
+  \`created_at\` datetime DEFAULT NULL,
+  \`updated_at\` datetime DEFAULT NULL,
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_stories_featured\` (\`featured\`),
+  KEY \`idx_stories_topic\` (\`topic\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
   users: `CREATE TABLE IF NOT EXISTS \`users\` (
   \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   \`name\` varchar(255) NOT NULL,
